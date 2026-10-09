@@ -1,0 +1,85 @@
+<class 'pandas.DataFrame'>
+RangeIndex: 31536 entries, 178702 to 210237
+Data columns (total 20 columns):
+ #   Column                 Non-Null Count  Dtype  
+---  ------                 --------------  -----  
+ 0   match_id               31536 non-null  Int64  
+ 1   match_seq_num          31536 non-null  Int64  
+ 2   radiant_win            31536 non-null  boolean
+ 3   start_time             31536 non-null  Int64  
+ 4   duration               31536 non-null  Int64  
+ 5   cluster                31536 non-null  Int64  
+ 6   human_players          31536 non-null  Int64  
+ 7   leagueid               31536 non-null  Int64  
+ 8   radiant_team_id        31536 non-null  Int64  
+ 9   dire_team_id           31536 non-null  Int64  
+ 10  radiant_team_complete  31536 non-null  Int64  
+ 11  dire_team_complete     31536 non-null  Int64  
+ 12  radiant_captain        30960 non-null  Int64  
+ 13  dire_captain           30960 non-null  Int64  
+ 14  radiant_team_name      31505 non-null  object 
+ 15  dire_team_name         31494 non-null  object 
+ 16  ticket                 0 non-null      object 
+ 17  banner                 0 non-null      object 
+ 18  tier                   31536 non-null  object 
+ 19  league_name            31536 non-null  object 
+dtypes: Int64(13), boolean(1), object(6)
+memory usage: 5.0+ MB
+None
+<class 'pandas.DataFrame'>
+RangeIndex: 178702 entries, 0 to 178701
+Data columns (total 20 columns):
+ #   Column                 Non-Null Count   Dtype  
+---  ------                 --------------   -----  
+ 0   match_id               178702 non-null  Int64  
+ 1   match_seq_num          178702 non-null  Int64  
+ 2   radiant_win            178702 non-null  boolean
+ 3   start_time             178702 non-null  Int64  
+ 4   duration               178702 non-null  Int64  
+ 5   cluster                178702 non-null  Int64  
+ 6   human_players          178702 non-null  Int64  
+ 7   leagueid               178702 non-null  Int64  
+ 8   radiant_team_id        178702 non-null  Int64  
+ 9   dire_team_id           178702 non-null  Int64  
+ 10  radiant_team_complete  178702 non-null  Int64  
+ 11  dire_team_complete     178702 non-null  Int64  
+ 12  radiant_captain        165676 non-null  Int64  
+ 13  dire_captain           165678 non-null  Int64  
+ 14  radiant_team_name      175930 non-null  object 
+ 15  dire_team_name         175974 non-null  object 
+ 16  ticket                 5763 non-null    object 
+ 17  banner                 5763 non-null    object 
+ 18  tier                   178702 non-null  object 
+ 19  league_name            178702 non-null  object 
+dtypes: Int64(13), boolean(1), object(6)
+memory usage: 28.5+ MB
+None
+Table of teams in the test set, not in the training set
+<class 'pandas.Series'>
+Index: 2659 entries, 178718 to 210237
+Series name: None
+Non-Null Count  Dtype
+--------------  -----
+2659 non-null   Int64
+dtypes: Int64(1)
+memory usage: 44.1 KB
+None
+x.nunique():
+2659
+
+
+
+
+Table of teams in the training set, not in the test set
+<class 'pandas.Series'>
+Index: 17530 entries, 0 to 178399
+Series name: None
+Non-Null Count  Dtype
+--------------  -----
+17530 non-null  Int64
+dtypes: Int64(1)
+memory usage: 291.0 KB
+None
+7817
+3.0
+0.6714548452562151
