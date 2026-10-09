@@ -63,18 +63,19 @@ for K in [8, 16, 32, 64, 128]:
 	def log_loss(p, y):
 		return -(y * np.log(p) + (1 - y) * np.log(1 - p))
 
-	data = data.sort_values('start_time')
+	data = data[~data['radiant_captain'].isna() & ~data['dire_captain'].isna()].sort_values('start_time')
+	print(len(data))
 	for row in data.itertuples():
-		if row.radiant_team_id not in team_trackers:
-			team_trackers[row.radiant_team_id] = TeamTracker(row.radiant_team_name)
+		if row.radiant_captain not in team_trackers:
+			team_trackers[row.radiant_captain] = TeamTracker(row.radiant_captain)
 
-		if row.dire_team_id not in team_trackers:
-			team_trackers[row.dire_team_id] = TeamTracker(row.dire_team_name)
+		if row.dire_captain not in team_trackers:
+			team_trackers[row.dire_captain] = TeamTracker(row.dire_captain)
 
-		radiant_elo = team_trackers[row.radiant_team_id].get_elo()
-		dire_elo = team_trackers[row.dire_team_id].get_elo()
+		radiant_elo = team_trackers[row.radiant_captain].get_elo()
+		dire_elo = team_trackers[row.dire_captain].get_elo()
 
-		p = team_trackers[row.radiant_team_id].calc_er(dire_elo)
+		p = team_trackers[row.radiant_captain].calc_er(dire_elo)
 		y = 1 if row.radiant_win else 0
 		records.append({
 			"match_id":   row.match_id,
@@ -82,12 +83,12 @@ for K in [8, 16, 32, 64, 128]:
 			"tier":       row.tier,
 			"p":          p, # what we predicted
 			"y":          y, # what happened
-			"r_games":    team_trackers[row.radiant_team_id].get_matches(), # radiant games
-			"d_games":    team_trackers[row.dire_team_id].get_matches(), # dire games
+			"r_games":    team_trackers[row.radiant_captain].get_matches(), # radiant games
+			"d_games":    team_trackers[row.dire_captain].get_matches(), # dire games
 		})
 
-		team_trackers[row.radiant_team_id].played_match(row.radiant_win, dire_elo)
-		team_trackers[row.dire_team_id].played_match(not row.radiant_win, radiant_elo)
+		team_trackers[row.radiant_captain].played_match(row.radiant_win, dire_elo)
+		team_trackers[row.dire_captain].played_match(not row.radiant_win, radiant_elo)
 
 
 	ratings = pd.DataFrame(

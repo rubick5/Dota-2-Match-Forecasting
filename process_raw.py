@@ -1,6 +1,6 @@
 import pandas as pd
+import glob
 from plotnine import ggplot, aes, geom_histogram, facet_wrap, labs
-
 matches = pd.read_csv("data/raw/matches.csv")
 teams = pd.read_csv("data/raw/teams.csv")
 leagues = pd.read_csv("data/raw/leagues.csv")
@@ -47,4 +47,18 @@ with_leagues = with_teams.merge(
 
 
 model_df = with_leagues[with_leagues.tier.isin(["premium", "professional"])].sort_values("start_time").reset_index(drop = True)
+
+players_pattern = "data/raw/players/*.csv"
+files = glob.glob(players_pattern)
+player_matches = pd.concat([pd.read_csv(f, dtype={"account_id" : "string"}) for f in files], ignore_index=True)
+
+# need to check that all matches have 10 players:
+counts = player_matches.groupby('match_id').size()
+bad = counts[counts != 10]
+print('number of games with incomplete players:', len(bad))
+player_matches = player_matches[~player_matches['match_id'].isin(bad.index)]
+
+#player_matches.info(show_counts = True)
+model_df = model_df[model_df['match_id'].isin(player_matches['match_id'])]
+player_matches.to_parquet('data/processed/player_matches.parquet')
 model_df.to_parquet('data/processed/data.parquet')
