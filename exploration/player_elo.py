@@ -1,3 +1,10 @@
+# exploratory. superseded by evaluate.py in the repo root, which is where the readme's
+# numbers come from.
+# this does hold out the last 10%, but K is picked by eye across runs that include the
+# held out loss, and the baseline it compares against is measured on the training data,
+# so the comparison is optimistic. the burn in filter here also counts the current match.
+# kept as a record of how the model developed. run it from the repo root, not this folder.
+
 import pandas as pd
 import math
 import numpy as np

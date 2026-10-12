@@ -5,7 +5,7 @@ history alone — no in-game state, no odds, nothing but who played and who won.
 
 The short version: **roster Elo reaches a log loss of 0.641 on held-out matches from
 2025-02 to 2026-10, against a baseline of 0.693.** Rating players individually and
-averaging them is worth about four times as much as rating teams. Almost everything
+averaging them is worth about 1.7x as much as rating teams. Almost everything
 tried after that — Glicko, hero drafts, time-varying hero weights — added little or
 nothing.
 
@@ -13,7 +13,7 @@ nothing.
 
 Source: [OpenDota's explorer](https://www.opendota.com/explorer). Bare SQL lets you query
 the tables in many interesting ways, but there is a query timeout, which means a single
-query for the whole history will not return. The fix is to batch: `fetch_heroes.py` splits
+query for the whole history will not return. The fix is to batch: `fetch_data.py` splits
 the pull by patch, using OpenDota's own `match_patch` table, into seven groups sized to be
 roughly even, and checks each response against a `count(*)` so a truncated reply is caught
 rather than silently written out short.
@@ -95,6 +95,22 @@ attached to orgs do not.
 
 This also forced the data expansion — player-level ratings need `player_matches`, which is
 2.5M rows rather than 210k.
+
+The mechanism is visible directly in the data. Splitting at the same 90% cutoff and asking
+what fraction of held-out matches involve an entity the model has never rated before:
+
+| Rated entity | Test matches involving an unseen one |
+|---|---|
+| Team id | 63.1% |
+| Captain | 31.3% |
+| Any of the ten players | 43.8% |
+| — but as a share of all player slots | **20.3%** |
+
+That last row is the whole argument. Rating teams means that in nearly two thirds of
+held-out matches at least one side is a blank 1500. Rating players means 80% of the slots
+feeding each prediction already carry a real rating, and a side with one new player still
+has four rated ones to average over. Averaging degrades gracefully where a single-entity
+rating falls off a cliff.
 
 ### 4. Glicko
 
@@ -202,7 +218,9 @@ Any single split would have been able to show either model ahead.
 
 ## Calibration
 
-Reliability on the headline fold, 10 equal-count bins, in `calibration.png`.
+Reliability on the headline fold, 10 equal-count bins.
+
+![Reliability and prediction spread on the held-out period](calibration.png)
 
 | Model | ECE | std of p | 5th–95th pct | share in 0.45–0.55 |
 |---|---|---|---|---|
@@ -260,25 +278,38 @@ temporal split with an honest baseline.
 
 | File | What it does |
 |---|---|
-| `fetch_heroes.py` | Pulls player rows with `hero_id`, and `match_patch`, from the OpenDota explorer API, batched by patch |
+| `fetch_data.py` | Pulls every raw table from the OpenDota explorer API — matches, player rows with `hero_id`, teams, leagues, patches — batching the big ones by patch |
 | `process_raw.py` | Joins the raw CSVs into `data/processed/*.parquet`, filters to pro tiers, attaches the patch |
 | `evaluate.py` | The single held-out pipeline: all four rating models, walk-forward folds, calibration, draft ablation |
-| `elo.py` | Original team/captain Elo exploration, in-sample |
-| `player_elo.py` | Original roster Elo exploration |
-| `player_glicko.py` | Original Glicko exploration, with loss broken down by time decile |
-| `main.py` | Scratch work on train/test team overlap |
-| `team_based_elo.txt` | Saved output from the original in-sample team Elo run |
+| `requirements.txt` | Pinned dependencies |
+| `exploration/elo.py` | Original team/captain Elo, in-sample |
+| `exploration/player_elo.py` | Original roster Elo |
+| `exploration/player_glicko.py` | Original Glicko, with loss broken down by time decile |
+| `exploration/main.py` | Where the churn problem was first measured |
+| `exploration/team_based_elo.txt` | Saved output from the original in-sample team Elo run |
 
-`elo.py`, `player_elo.py` and `player_glicko.py` are kept as the exploratory record. The
-numbers quoted in this README all come from `evaluate.py`.
+Everything under `exploration/` is the record of how the model developed, kept deliberately
+as it was written. Those scripts score in-sample and take their baselines from training
+data, so their numbers are **not** comparable to anything in this README and each one says
+so at the top. Every number quoted here comes from `evaluate.py`. Run them from the repo
+root, not from inside `exploration/`.
 
 ## Reproducing
 
+From a clean clone, with no data files and no API key:
+
 ```bash
-venv/bin/python fetch_heroes.py   # writes data/raw/with_heroes/*.csv and data/raw/match_patch.csv
+python -m venv venv
+venv/bin/pip install -r requirements.txt
+venv/bin/python fetch_data.py     # writes data/raw/, about 10 minutes
 venv/bin/python process_raw.py    # writes data/processed/*.parquet
 venv/bin/python evaluate.py       # prints every table above, writes calibration.png
 ```
 
-`fetch_heroes.py` skips any batch already on disk, so an interrupted pull resumes.
+`fetch_data.py` skips anything already on disk, so an interrupted pull resumes.
+
+The source tables are live and keep growing, so a fresh pull returns slightly more matches
+than the 210,238 the numbers above were computed on, and the results will move a little.
+The quantile-based chunk boundaries shift with the data by design — they are always the
+last 10% of whatever history exists at the time.
 `evaluate.py` takes a few minutes, most of it in the draft ablation's hyperparameter grids.

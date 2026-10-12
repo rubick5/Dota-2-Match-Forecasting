@@ -1,6 +1,5 @@
 import pandas as pd
 import glob
-from plotnine import ggplot, aes, geom_histogram, facet_wrap, labs
 matches = pd.read_csv("data/raw/matches.csv")
 teams = pd.read_csv("data/raw/teams.csv")
 leagues = pd.read_csv("data/raw/leagues.csv")

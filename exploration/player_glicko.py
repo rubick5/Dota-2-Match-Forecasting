@@ -1,3 +1,11 @@
+# exploratory. superseded by evaluate.py in the repo root, which is where the readme's
+# numbers come from.
+# same caveats as player_elo.py: C is picked by eye across runs that include the held out
+# loss, and the baseline is measured on the training data.
+# the one thing worth keeping here is the loss by time decile, which is what showed the
+# model getting worse over time and the cold start games being easier than average.
+# run it from the repo root, not this folder.
+
 import pandas as pd
 import math
 import numpy as np

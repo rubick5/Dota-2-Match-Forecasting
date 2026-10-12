@@ -1,3 +1,9 @@
+# exploratory. superseded by evaluate.py in the repo root, which is where the readme's
+# numbers come from.
+# this scores every match it trained on and takes its baseline from that same data, so
+# nothing printed here is a held out result and none of it is comparable to the readme.
+# kept as a record of how the model developed. run it from the repo root, not this folder.
+
 import pandas as pd
 import math
 import numpy as np
@@ -55,7 +61,7 @@ for K in [8, 16, 32, 64, 128]:
 		def played_match(self, won: bool, other_elo: int):
 			er = self.calc_er(other_elo)
 			self.__elo += K * ((1 if won else 0) - er)
-			self.__matches += 1
+			self.__next_match += 1
 
 
 	team_trackers = {}

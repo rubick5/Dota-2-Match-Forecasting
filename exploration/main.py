@@ -1,3 +1,9 @@
+# scratch work, not part of the pipeline. this is where the churn problem was first
+# measured: how many teams in the test period were never seen in training, and what
+# share of test matches involve one. that is what motivated moving the rating off the
+# team id and onto the players.
+# run it from the repo root, not this folder.
+
 import pandas as pd
 import glob
 

@@ -1,0 +1,6 @@
+# developed and run against python 3.14.2 with the versions below
+pandas>=3.0.6
+numpy>=2.5.3
+scipy>=1.18.1
+matplotlib>=3.11.2
+fastparquet>=2026.9.0
