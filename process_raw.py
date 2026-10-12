@@ -48,7 +48,7 @@ with_leagues = with_teams.merge(
 
 model_df = with_leagues[with_leagues.tier.isin(["premium", "professional"])].sort_values("start_time").reset_index(drop = True)
 
-players_pattern = "data/raw/players/*.csv"
+players_pattern = "data/raw/with_heroes/*.csv" # was data/raw/players/*.csv, which had no hero_id
 files = glob.glob(players_pattern)
 player_matches = pd.concat([pd.read_csv(f, dtype={"account_id" : "string"}) for f in files], ignore_index=True)
 
@@ -60,5 +60,16 @@ player_matches = player_matches[~player_matches['match_id'].isin(bad.index)]
 
 #player_matches.info(show_counts = True)
 model_df = model_df[model_df['match_id'].isin(player_matches['match_id'])]
+
+# the patch is needed to let hero effects drift, since a hero id means something
+# different in 6.74 than it does in 7.41
+match_patch = pd.read_csv("data/raw/match_patch.csv", dtype = {"patch": "string"}) # else 7.40 is read as the float 7.4
+model_df = model_df.merge(
+	match_patch,
+	on = 'match_id',
+	how = 'left',
+	validate = 'm:1',
+)
+print('matches with no patch:', model_df.patch.isna().sum())
 player_matches.to_parquet('data/processed/player_matches.parquet')
 model_df.to_parquet('data/processed/data.parquet')
