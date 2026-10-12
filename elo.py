@@ -37,7 +37,7 @@ for K in [8, 16, 32, 64, 128]:
 	print('Doing everything with K =', K)
 	class TeamTracker:
 		def __init__(self, name):
-			self.__matches = 0
+			self.__next_match = 1
 			self.__elo = 1500
 			self.__name = name
 		def get_name(self):
@@ -47,7 +47,7 @@ for K in [8, 16, 32, 64, 128]:
 			return self.__elo
 		
 		def get_matches(self) -> int:
-			return self.__matches
+			return self.__next_match
 
 		def calc_er(self, other_elo):
 			return 1 / (1 + 10 ** ((other_elo - self.__elo) / 400))
